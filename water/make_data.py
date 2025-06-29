@@ -5,6 +5,7 @@ import glob
 from datetime import datetime
 from upload import update_water
 print("world")
+print("world_2")
 def findFiles(path,recursive=False):
     return glob.glob(path,recursive=recursive)
 

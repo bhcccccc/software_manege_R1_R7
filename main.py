@@ -20,6 +20,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 # 导入 alarm.py 中的函数
 from alarmm.alarm1 import start_alarm_server
 student_id="2213634"
+student_id="2213634_2"
 password='123456'
 
 nowusername=''

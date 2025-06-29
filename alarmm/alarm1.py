@@ -9,6 +9,7 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 CORS(app)
 
 printf("hello")
+printf("hello_2")
 socketio = SocketIO(app, cors_allowed_origins="*")
 # MySQL connection configuration
 db_config = {
