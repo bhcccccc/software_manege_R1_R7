@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌊 水质监测报警系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.min.js"></script>
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --danger: #e74c3c;
+      --danger-light: #ffeaea;
+      --warning: #f39c12;
+      --success: #2ecc71;
+      --gray: #95a5a6;
+      --light-gray: #ecf0f1;
+      --dark: #2c3e50;
+      --white: #ffffff;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background-color: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .panel:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .panel-header {
+      padding: 18px 24px;
+      background-color: var(--primary);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-header h2 {
+      font-weight: 500;
+      font-size: 1.3rem;
+      margin: 0;
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 0.95rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: var(--transition);
+      background-color: #f9f9f9;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      background-color: var(--white);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    #alarm-display {
+      height: 500px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .alarm-message {
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      background-color: var(--light-gray);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .alarm-message:hover {
+      transform: translateX(4px);
+    }
+
+    .alarm-message.critical {
+      background-color: var(--danger-light);
+      border-left: 4px solid var(--danger);
+    }
+
+    .alarm-message.warning {
+      background-color: rgba(243, 156, 18, 0.1);
+      border-left: 4px solid var(--warning);
+    }
+
+    .alarm-message.info {
+      background-color: rgba(52, 152, 219, 0.1);
+      border-left: 4px solid var(--primary);
+    }
+
+    .alarm-icon {
+      font-size: 1.2rem;
+      margin-top: 2px;
+    }
+
+    .critical .alarm-icon {
+      color: var(--danger);
+    }
+
+    .warning .alarm-icon {
+      color: var(--warning);
+    }
+
+    .info .alarm-icon {
+      color: var(--primary);
+    }
+
+    .alarm-content {
+      flex: 1;
+    }
+
+    .alarm-time {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-bottom: 4px;
+    }
+
+    .alarm-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .parameter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 576px) {
+      .parameter-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 设置报警阈值 -->
+    <div class="panel">
+      <div class="panel-header">
+        <i class="fas fa-sliders-h"></i>
+        <h2>报警阈值设置</h2>
+      </div>
+      <div class="panel-body">
+        <form id="threshold-form">
+          <div class="parameter-grid">
+            <div class="form-group">
+              <label for="water_temp"><i class="fas fa-temperature-high"></i> 水温 (°C)</label>
+              <input type="number" id="water_temp" class="form-control" step="0.1" placeholder="例如：18" required />
+            </div>
+
+            <div class="form-group">
+              <label for="dissolved_oxy"><i class="fas fa-lungs"></i> 溶解氧 (mg/L)</label>
+              <input type="number" id="dissolved_oxy" class="form-control" step="0.1" placeholder="例如：7" required />
+            </div>
+
+            <div class="form-group">
+              <label for="conductivity"><i class="fas fa-bolt"></i> 电导率 (μS/cm)</label>
+              <input type="number" id="conductivity" class="form-control" step="1" placeholder="例如：900" required />
+            </div>
+
+            <div class="form-group">
+              <label for="turbidity"><i class="fas fa-water"></i> 浊度 (NTU)</label>
+              <input type="number" id="turbidity" class="form-control" step="0.1" placeholder="例如：200" required />
+            </div>
+
+            <div class="form-group">
+              <label for="permanganate_index"><i class="fas fa-flask"></i> 高锰酸盐指数</label>
+              <input type="number" id="permanganate_index" class="form-control" step="0.1" placeholder="例如：6" required />
+            </div>
+
+            <div class="form-group">
+              <label for="ammonia_nitrogen"><i class="fas fa-atom"></i> 氨氮 (mg/L)</label>
+              <input type="number" id="ammonia_nitrogen" class="form-control" step="0.1" placeholder="例如：0.5" required />
+            </div>
+
+            <div class="form-group">
+              <label for="total_phosphorus"><i class="fas fa-atom"></i> 总磷 (mg/L)</label>
+              <input type="number" id="total_phosphorus" class="form-control" step="0.1" placeholder="例如：0.2" required />
+            </div>
+
+            <div class="form-group">
+              <label for="total_nitrogen"><i class="fas fa-atom"></i> 总氮 (mg/L)</label>
+              <input type="number" id="total_nitrogen" class="form-control" step="0.1" placeholder="例如：3.5" required />
+            </div>
+          </div>
+
+          <button type="submit" class="btn">
+            <i class="fas fa-save"></i> 保存设置
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 报警信息 -->
+    <div class="panel">
+      <div class="panel-header">
+        <i class="fas fa-bell"></i>
+        <h2>报警信息</h2>
+      </div>
+      <div class="panel-body">
+        <div id="alarm-display">
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <p>暂无报警信息</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const socket = io('http://127.0.0.1:3000');
+    let emptyState = document.querySelector('.empty-state');
+
+    document.getElementById('threshold-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = {
+        water_temperature: parseFloat(document.getElementById('water_temp').value),
+        dissolved_oxygen: parseFloat(document.getElementById('dissolved_oxy').value),
+        conductivity: parseFloat(document.getElementById('conductivity').value),
+        turbidity: parseFloat(document.getElementById('turbidity').value),
+        permanganate_index: parseFloat(document.getElementById('permanganate_index').value),
+        ammonia_nitrogen: parseFloat(document.getElementById('ammonia_nitrogen').value),
+        total_phosphorus: parseFloat(document.getElementById('total_phosphorus').value),
+        total_nitrogen: parseFloat(document.getElementById('total_nitrogen').value)
+      };
+
+      // 验证数据
+      for (const key in formData) {
+        if (isNaN(formData[key])) {
+          showAlert('请填写所有有效的阈值！', 'warning');
+          return;
+        }
+      }
+
+      socket.emit('set_alarm_thresholds', formData);
+      
+      showAlert('阈值设置已保存！', 'success');
+    });
+
+    socket.on('threshold_set_confirmation', function(data) {
+      console.log("服务器确认阈值设置成功:", data);
+    });
+
+    socket.on('new_alarm', function(data) {
+      const alarmDisplay = document.getElementById('alarm-display');
+      
+      // 移除空状态提示
+      if (emptyState) {
+        alarmDisplay.removeChild(emptyState);
+        emptyState = null;
+      }
+
+      // 创建报警消息元素
+      const alarmMessage = document.createElement('div');
+      alarmMessage.className = `alarm-message ${data.severity || 'critical'}`;
+      
+      // 根据严重程度选择图标
+      let iconClass;
+      if (data.severity === 'warning') {
+        iconClass = 'fa-exclamation-triangle';
+      } else if (data.severity === 'info') {
+        iconClass = 'fa-info-circle';
+      } else {
+        iconClass = 'fa-exclamation-circle';
+      }
+
+      alarmMessage.innerHTML = `
+        <div class="alarm-icon">
+          <i class="fas ${iconClass}"></i>
+        </div>
+        <div class="alarm-content">
+          <div class="alarm-time">${new Date().toLocaleString()}</div>
+          <div class="alarm-text">${data.message}</div>
+        </div>
+      `;
+
+      // 添加到页面顶部
+      alarmDisplay.insertBefore(alarmMessage, alarmDisplay.firstChild);
+      
+      // 浏览器通知
+      triggerBrowserNotification(data.message, data.severity);
+    });
+
+    function triggerBrowserNotification(message, severity) {
+      let notificationTitle = '水质报警';
+      let notificationOptions = {
+        body: message,
+        icon: '/favicon.ico'
+      };
+
+      if (severity === 'warning') {
+        notificationTitle = '⚠️ 水质警告';
+      } else if (severity === 'critical') {
+        notificationTitle = '🚨 水质严重报警';
+      }
+
+      if (Notification.permission === 'granted') {
+        new Notification(notificationTitle, notificationOptions);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification(notificationTitle, notificationOptions);
+          }
+        });
+      }
+    }
+
+    function showAlert(message, type) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alarm-message ${type}`;
+      alertDiv.innerHTML = `
+        <div class="alarm-icon">
+          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+        </div>
+        <div class="alarm-content">
+          <div class="alarm-text">${message}</div>
+        </div>
+      `;
+      
+      document.body.appendChild(alertDiv);
+      
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        setTimeout(() => {
+          document.body.removeChild(alertDiv);
+        }, 300);
+      }, 3000);
+    }
+
+    // 初始化加载时请求当前阈值
+    socket.emit('request_current_thresholds');
+    
+    socket.on('current_thresholds', function(data) {
+      if (data) {
+        document.getElementById('water_temp').value = data.water_temperature || '';
+        document.getElementById('dissolved_oxy').value = data.dissolved_oxygen || '';
+        document.getElementById('conductivity').value = data.conductivity || '';
+        document.getElementById('turbidity').value = data.turbidity || '';
+        document.getElementById('permanganate_index').value = data.permanganate_index || '';
+        document.getElementById('ammonia_nitrogen').value = data.ammonia_nitrogen || '';
+        document.getElementById('total_phosphorus').value = data.total_phosphorus || '';
+        document.getElementById('total_nitrogen').value = data.total_nitrogen || '';
+      }
+    });
+  </script>
+</body>
+</html>

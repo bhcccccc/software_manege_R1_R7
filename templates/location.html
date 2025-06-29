@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋牧场监测系统</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f0f8ff; /* 淡蓝色背景 */
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: #003366;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 22px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .navbar ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .navbar ul li {
+            margin: 0 15px;
+        }
+
+        .navbar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar ul li a:hover {
+            color: #66ccff;
+        }
+
+        .navbar .nav-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info .username {
+            color: white;
+            margin-right: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info .username i {
+            margin-right: 8px;
+            color: #66ccff;
+        }
+
+        .user-info .exit a {
+            padding: 8px 15px;
+            background-color: #0066cc;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .user-info .exit a:hover {
+            background-color: #004c99;
+            color: white;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .content-header {
+            margin-bottom: 25px;
+        }
+
+        .content-header h2 {
+            font-size: 26px;
+            color: #003366;
+            margin: 0;
+            font-weight: 600;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #0066cc;
+        }
+
+        /* 位置列表卡片 */
+        .location-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .location-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .location-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .location-card h3 {
+            font-size: 18px;
+            color: #003366;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .location-icon {
+            font-size: 24px;
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        .location-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .location-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #0066cc;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .navbar ul {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .navbar ul li {
+                margin: 5px 10px;
+            }
+
+            .location-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div><h1>海洋牧场监测系统</h1></div>
+        <ul>
+
+                    <li><a href="{{ url_for('tomain') }}"><i class="home-icon"></i> 首页</a></li>
+
+
+                    <li><a href="{{ url_for('todata') }}"><i class="data-icon"></i> 主要信息</a></li>
+
+
+                    <li><a href="{{ url_for('towater') }}"><i class="underwater-icon"></i> 水下系统</a></li>
+
+                    <li><a href="{{ url_for('toai') }}"><i class="ai-icon"></i> 智能中心</a></li>
+                    {% if userrole=="admin" %}
+                    <li><a href="{{ url_for('toadadmin') }}"><i class="admin-icon"></i> 管理员</a></li>
+                    {% endif %}
+        </ul>
+
+        <div >
+            <ul><li><a href="{{ url_for('topersonal') }}" class="username"><i class="user-icon"></i> {{ username }} </a></li>
+            <li><a href="{{ url_for('exit') }}" class="exit"><i class="exit-icon"></i> 退出</a>
+            </li></ul>
+
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <h2>传感器所在位置列表 - {{ province }}</h2>
+        </div>
+
+        <div class="location-list">
+            {% for location in locations %}
+            <div class="location-card">
+                <div class="location-icon">📍</div>
+                <h3>{{ location }}</h3>
+                <p class="location-info">点击查看该地点的详细监测数据</p>
+                <a href="{{ url_for('juti',province=province,location=location) }}" style="text-decoration: none; color: #0066cc; font-weight: 600; display: block; margin-top: 15px;">查看详情</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

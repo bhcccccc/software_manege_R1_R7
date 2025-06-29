@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>智慧海洋牧场 - 水下界面</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", sans-serif;
+      background-color: #001f3f;
+      color: #fff;
+    }
+
+    /* 顶部导航栏样式 */
+    .navbar {
+      background-color: #003366;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      color: white;
+      font-size: 22px;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .navbar ul {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+    }
+
+    .navbar ul li {
+      margin: 0 15px;
+    }
+
+    .navbar ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar ul li a:hover {
+      color: #66ccff;
+    }
+
+    .username {
+      color: white;
+      margin-right: 20px;
+      font-weight: 500;
+    }
+
+
+
+    .exit {
+      margin-left: 20px;
+    }
+
+    .main-image {
+      width: 100%;
+      height: 100vh;
+      background-image: url("/static/img/fishes.png");
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .header-info {
+      position: absolute;
+      top: 380px;
+      left: 30px;
+      background: rgba(0, 51, 102, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .overlay-top {
+      position: absolute;
+      top: 370px;
+      right: 30px;
+      text-align: right;
+      font-size: 16px;
+    }
+
+    /* 操作区背景和布局 */
+    .overlay-ops {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 400px;
+      float: right;
+      color: black; /* 整体文字变黑 */
+    }
+
+    /* 标题和标签文字变黑 */
+    .overlay-ops h4,
+    .overlay-ops label {
+      color: black;
+    }
+
+    /* 下载按钮 */
+    .overlay-ops a {
+      padding: 8px 16px;
+      background-color: #009933;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    /* 上传区域样式 */
+    .overlay-ops > div:nth-child(2) {
+      margin-bottom: 15px;
+      background: #f0f8ff;
+      border: 1px solid #0066cc;
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    /* 删除区域样式 */
+    .overlay-ops > div:nth-child(3) {
+      background: #fff0f0;
+      border: 1px solid #cc0000;
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .fish-image-box {
+      position: absolute;
+      top: 58%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .fish-image-box img {
+      width: 400px;
+      border-radius: 10px;
+      border: 2px solid #00ccff;
+    }
+
+    .bottom-info {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;  
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px 30px;
+      border-radius: 12px;
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .bottom-info div {
+      text-align: center;
+    } 
+
+    .fish-buttons {
+      margin-top: 360px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      transform: translateX(150px);
+    }
+
+    .fish-buttons button {
+      background: #0077ff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .fish-buttons button.active {
+      background: #00ccff;
+    }
+
+    .fish-data-section {
+      clear: both; /* 清除浮动影响 */
+      margin: 40px auto 0;
+      max-width: 900px;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 20px;
+      border-radius: 12px;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .fish-data-section h3 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #00ccff;
+    }
+
+    .fish-table-scroll {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #004c99;
+      border-radius: 8px;
+    }
+
+    .fish-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .fish-table thead {
+      background-color: #002244;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .fish-table th, .fish-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #004c99;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.15);
+      color: #fff;
+    }
+
+    .fish-table tbody tr:hover {
+      background-color: rgba(0, 102, 204, 0.3);
+    }
+
+
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <div class="navbar">
+    <div><h1>海洋牧场监测系统</h1></div>
+    <ul>
+      <li><a href="{{ url_for('tomain') }}">首页</a></li>
+      <li><a href="{{ url_for('todata') }}">主要信息</a></li>
+      <li><a href="{{ url_for('towater') }}">水下系统</a></li>
+      <li><a href="{{ url_for('toai') }}">智能中心</a></li>
+      {% if userrole == "admin" %}
+      <li><a href="{{ url_for('toadadmin') }}">管理员</a></li>
+      {% endif %}
+    </ul>
+    <ul>
+      <li><a href="{{ url_for('topersonal') }}" class="username">{{ username }}</a></li>
+      <li class="exit"><a href="{{ url_for('exit') }}">退出</a></li>
+    </ul>
+  </div>
+
+  <!-- 主界面图层 -->
+  <div class="main-image">
+    <!-- 左上角硬件信息 -->
+    <div class="header-info">
+      <strong>硬件信息</strong><br>
+      网箱：100m×50m×30m，坐标(经:128.034，纬:56.123)<br>
+      水底传感器：运行 0天23小时59分钟<br>
+      下次检修：35.0 天后<br>
+      保修过期：2035年02月01日
+    </div>
+
+  <div class="fish-table-container">
+    <h3>🐟 鱼类数据一览表</h3>
+    <div class="fish-table-scroll">
+      <table class="fish-table">
+        <thead>
+          <tr>
+            <th>Fish ID</th>
+            <th>类型</th>
+            <th>重量</th>
+            <th>长度1</th>
+            <th>长度2</th>
+            <th>长度3</th>
+            <th>高度</th>
+            <th>宽度</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in all_fish_records %}
+          <tr>
+            <td>{{ row.fishid }}</td>
+            <td>{{ row.type }}</td>
+            <td>{{ row.weight }}</td>
+            <td>{{ row.length1 }}</td>
+            <td>{{ row.length2 }}</td>
+            <td>{{ row.length3 }}</td>
+            <td>{{ row.height }}</td>
+            <td>{{ row.width }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+
+
+    <!-- 右上角时间和温度 -->
+    <div class="overlay-top">
+      <div id="current-time">时间：</div>
+      <div id="current-temp">温度：-- °C</div>
+      <div>海洋牧场 - 一号舱</div>
+    </div>
+
+    <!-- 紧接其下的操作功能区：下载 / 上传 / 删除 -->
+    <div class="overlay-ops" style="margin-top: 200px; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); max-width: 400px; float: right;">
+
+      <!-- 下载按钮（所有用户可见） -->
+      <div style="margin-bottom: 10px; text-align: right;">
+        <a href="{{ url_for('download_fish_data') }}" 
+          style="padding: 8px 16px; background-color:#009933; color:black; border-radius: 5px; text-decoration: none; font-weight: 600; font-size: 14px;">
+          下载鱼类数据 CSV
+        </a>
+      </div>
+
+      <!-- 上传/删除仅管理员可见 -->
+      {% if userrole == 'admin' %}
+      <!-- 上传数据 -->
+      <div style="margin-bottom: 15px; background: #f0f8ff; border: 1px solid #0066cc; border-radius: 6px; padding: 10px;">
+        <h4 style="margin: 0 0 8px;">上传鱼类数据（CSV）</h4>
+        <form action="{{ url_for('upload_fish_data') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept=".csv" required style="margin-bottom: 6px;">
+          <button type="submit" style="padding: 6px 12px; background-color:#0066cc; color:black; border:none; border-radius: 4px;">上传</button>
+        </form>
+      </div>
+
+      <!-- 删除数据 -->
+      <div style="background: #fff0f0; border: 1px solid #cc0000; border-radius: 6px; padding: 10px;">
+        <h4 style="margin: 0 0 8px;">删除鱼类数据</h4>
+        <form action="{{ url_for('delete_fish_data') }}" method="post" onsubmit="return confirm('确认删除吗？此操作不可恢复！');">
+          <label for="fishid" style="font-size: 14px;">Fish ID:</label>
+          <input type="text" id="fishid" name="fishid" required style="margin-left: 8px; padding: 4px; width: 100px;">
+          <button type="submit" style="padding: 6px 12px; background-color:#cc0000; color:black; border:none; border-radius: 4px; margin-left: 10px;">删除</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 中间鱼图 -->
+    <div class="fish-image-box">
+      <img id="fishImage" src="/static/img/fish.png" alt="鱼类图片">
+      <div style="margin-top: 5px;">当前鱼种图</div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="bottom-info">
+      <div>
+        <div id="selectedType">鱼种：鲤鱼</div>
+        <div>数量：<span id="fishCount">--</span></div>
+        <div>平均长度：<span id="avgLength">--</span></div>
+        <div>平均高度：<span id="avgHeight">--</span></div>
+      </div>
+      <div>
+        <div>总鱼数：<span>{{ total_fish }}</span></div> 
+      </div>
+      <div>
+        <div>环境感知得分</div>
+        <div style="font-size: 32px; font-weight: bold;">{{ env_score }}</div>
+      </div>
+    </div>
+
+    <!-- 鱼类选择按钮 -->
+    <div class="fish-buttons">
+      {% for t in fish_types %}
+      <button onclick="showFish('{{ t }}')" id="btn_{{ t }}">{{ t }}</button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- JavaScript 部分 -->
+  <script>
+    const fishData = {{ fish_data|tojson }};
+    let currentType = "{{ fish_types[0] }}";
+
+    function showFish(type) {
+      currentType = type;
+      document.getElementById('selectedType').textContent = '鱼种：' + type;
+      document.querySelectorAll('.fish-buttons button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('btn_' + type).classList.add('active');
+
+      const fishList = fishData[type];
+      if (fishList.length === 0) {
+        document.getElementById('fishCount').textContent = '0';
+        document.getElementById('avgLength').textContent = '--';
+        document.getElementById('avgHeight').textContent = '--';
+        return;
+      }
+
+      document.getElementById('fishCount').textContent = fishList.length;
+      const avgLength = (fishList.reduce((s, f) => s + f.length, 0) / fishList.length).toFixed(2);
+      const avgHeight = (fishList.reduce((s, f) => s + f.height, 0) / fishList.length).toFixed(2);
+      document.getElementById('avgLength').textContent = avgLength + ' cm';
+      document.getElementById('avgHeight').textContent = avgHeight + ' cm';
+
+      // 更换鱼图
+      document.getElementById('fishImage').src = "/static/img/fish_images/" + type + ".png";
+    }
+
+    // 时间与温度更新
+    function updateTimeAndTemp() {
+      const now = new Date();
+      const timeStr = now.toLocaleString('zh-CN', { hour12: false });
+      document.getElementById('current-time').textContent = '时间：' + timeStr;
+
+      const temp = (12 + Math.random() * 3).toFixed(1); // 12.0 ~ 15.0°C 随机波动
+      document.getElementById('current-temp').textContent = '温度：' + temp + '°C';
+    }
+
+    setInterval(updateTimeAndTemp, 1000);
+    updateTimeAndTemp();
+    showFish(currentType);
+  </script>
+</body>
+</html>

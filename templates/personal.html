@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 | 海洋牧场监测系统</title>
+    <!-- 同步首页样式 -->
+    <style>
+         body {
+    margin: 0;
+    font-family: "Microsoft YaHei", sans-serif;
+    background-color: white;
+    color: #fff;
+  }
+        .navbar {
+    background-color: #003366;
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .navbar h1 {
+    font-size: 20px;
+    margin: 0;
+  }
+  .navbar ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .navbar ul li {
+    margin: 0 15px;
+  }
+  .navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .username,
+  .exit {
+    margin-left: 20px;
+  }
+        /* ----- Card ----- */
+        .wrapper{max-width:600px;margin:40px auto;padding:0 20px;}
+        .card{background:#fff;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.1);padding:2rem;}
+        .card h2{font-size:22px;font-weight:700;text-align:center;margin-bottom:1.5rem;color:#333;}
+        .info{margin-bottom:2rem;display:flex;flex-direction:column;gap:.6rem;}
+        .info span{color:#555;font-size:1rem;}
+        .info strong{color:#333;}
+        .form-wrapper{display:flex;flex-direction:column;gap:1rem;}
+        .input-box{display:flex;align-items:center;gap:.8rem;background:#eef0f4;border-radius:8px;padding:.8rem 1rem;}
+        .input-box input{flex:1;border:none;background:transparent;outline:none;font-size:1rem;color:#333;}
+        .btn{background:#0066cc;border:none;color:#fff;font-size:1rem;font-weight:600;border-radius:999px;padding:.8rem;cursor:pointer;transition:background .3s;}
+        .btn:hover{background:#0052a3;}
+        .msg{height:1.2rem;font-size:.9rem;text-align:center;margin-top:.5rem;}
+        .msg.success{color:#2e7d32;}
+        .msg.error{color:#c62828;}
+    </style>
+</head>
+<body>
+    <!-- 顶部导航保持一致 -->
+    <div class="navbar">
+        <div><h1>海洋牧场监测系统</h1></div>
+        <ul>
+                
+                    <li><a href="{{ url_for('tomain') }}"><i class="home-icon"></i> 首页</a></li>
+                
+                
+                    <li><a href="{{ url_for('todata') }}"><i class="data-icon"></i> 主要信息</a></li>
+                
+                
+                    <li><a href="{{ url_for('towater') }}"><i class="underwater-icon"></i> 水下系统</a></li>
+               
+                    <li><a href="{{ url_for('toai') }}"><i class="ai-icon"></i> 智能中心</a></li>
+                    {% if userrole=="admin" %}
+                    <li><a href="{{ url_for('toadadmin') }}"><i class="admin-icon"></i> 管理员</a></li>
+                    {% endif %}
+        </ul>
+       
+        <div >
+            <ul><li><a href="{{ url_for('topersonal') }}" class="username"><i class="user-icon"></i> {{ username }} </a></li>
+            <li><a href="{{ url_for('exit') }}" class="exit"><i class="exit-icon"></i> 退出</a>
+            </li></ul>
+            
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="card">
+            <h2>个人中心</h2>
+            <div class="info">
+                <span><strong>用户名：</strong><span id="uname">{{ username }}</span></span>
+                <span><strong>角色：</strong><span id="urole">{{ role }}</span></span>
+            </div>
+
+            <!-- 修改用户名 -->
+            <form id="nameForm" class="form-wrapper" action="/change_name" method="post">
+                <div class="input-box"><input type="text" name="new_name" placeholder="新的用户名" required></div>
+                <button type="submit" class="btn">修改用户名</button>
+                <div id="nameMsg" class="msg"></div>
+            </form>
+            <hr style="margin:2rem 0;border:none;border-top:1px solid #eee;">
+            <!-- 修改密码 -->
+            <form id="pwdForm" class="form-wrapper" action="/change_pwd" method="post">
+                <div class="input-box"><input type="password" name="old" placeholder="旧密码" required></div>
+                <div class="input-box"><input type="password" name="new" placeholder="新密码" required></div>
+                <div class="input-box"><input type="password" name="confirm" placeholder="确认新密码" required></div>
+                <button type="submit" class="btn">修改密码</button>
+                <div id="pwdMsg" class="msg"></div>
+            </form>
+        </div>
+    </div>
+
+<script>
+// 共用异步提交函数
+async function submitForm(form, msgEl){
+  msgEl.textContent='';
+  msgEl.className='msg';
+  const fd=new FormData(form);
+  if(form.id==='pwdForm' && fd.get('new')!==fd.get('confirm')){
+    msgEl.textContent='两次密码不一致';msgEl.classList.add('error');return;}
+  try{
+    const res=await fetch(form.action,{method:'POST',body:fd});
+    const data=await res.json();
+    msgEl.textContent=data.message||'操作失败';
+    msgEl.classList.add(res.ok?'success':'error');
+    if(res.ok){form.reset();if(form.id==='nameForm'){document.getElementById('uname').textContent=fd.get('new_name');}}
+  }catch(err){msgEl.textContent='网络错误';msgEl.classList.add('error');}
+}
+
+document.getElementById('nameForm').addEventListener('submit',e=>{e.preventDefault();submitForm(e.target,document.getElementById('nameMsg'));});
+
+document.getElementById('pwdForm').addEventListener('submit',e=>{e.preventDefault();submitForm(e.target,document.getElementById('pwdMsg'));});
+</script>
+</body>
+</html>

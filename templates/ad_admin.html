@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海洋牧场监测系统</title>
+    <style>
+         body {
+    margin: 0;
+    font-family: "Microsoft YaHei", sans-serif;
+    background-color: white;
+   
+  }
+        .navbar {
+    background-color: #003366;
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .navbar h1 {
+    color: #fff;
+    font-size: 20px;
+    margin: 0;
+  }
+  .navbar ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .navbar ul li {
+    margin: 0 15px;
+  }
+  .navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+  }
+  .navbar .username,
+  .exit {
+    margin-left: 20px;
+  }
+        .main-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .content-body {
+            display: flex;
+            gap: 20px;
+        }
+
+        .video-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-info h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .video-info .info-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .video-info .info-item i {
+            margin-right: 10px;
+            color: #0066cc;
+        }
+
+        .status-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-container h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-item i {
+            margin-right: 10px;
+            color: #0066cc;
+        }
+
+        .score-container {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-container h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .score-info {
+            background-color: #f0f8ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .score-info i {
+            margin-right: 10px;
+            color: #0066cc;
+        }
+
+        .score-stars {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .star {
+            color: #ffcc00;
+            font-size: 24px;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+       
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h2 {
+            color: black;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-edit {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-add {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .flash {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .btn-add:hover {
+            background-color: #bd2130;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div><h1>海洋牧场监测系统</h1></div>
+        <ul>
+                
+                    <li><a href="{{ url_for('tomain') }}"><i class="home-icon"></i> 首页</a></li>
+                
+                
+                    <li><a href="{{ url_for('todata') }}"><i class="data-icon"></i> 主要信息</a></li>
+                
+                
+                    <li><a href="{{ url_for('towater') }}"><i class="underwater-icon"></i> 水下系统</a></li>
+               
+                    <li><a href="{{ url_for('toai') }}"><i class="ai-icon"></i> 智能中心</a></li>
+                    {% if userrole=="admin" %}
+                    <li><a href="{{ url_for('toadadmin') }}"><i class="admin-icon"></i> 管理员</a></li>
+                    {% endif %}
+        </ul>
+       
+        <div >
+            <ul><li><a href="{{ url_for('topersonal') }}" class="username"><i class="user-icon"></i> {{ username }} </a></li>
+            <li><a href="{{ url_for('exit') }}" class="exit"><i class="exit-icon"></i> 退出</a>
+            </li></ul>
+            
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>权限管理</h2>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form action = "/toadduser"><button class="btn-add" >添加用户</button></form>
+            <form action = "/toaddwater"><button class="btn-add" >上传水文数据</button></form>
+            <button class="btn-add" onclick="showDeletePrompt()">删除水文数据</button></form>
+            <div id="result"></div>
+            <form action="/download_water_data"><button class="btn-add">下载水文数据</button></form>
+            <script>
+                function showDeletePrompt() {
+                    // 弹出提示框，获取用户输入的ID
+                    const dataId = prompt("请输入要删除的数据ID：");
+
+                    if (dataId !== null && dataId.trim() !== "") {
+                        // 发送AJAX请求到服务器
+                        fetch('/delete_water_data', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `data_id=${encodeURIComponent(dataId)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const resultDiv = document.getElementById('result');
+                            resultDiv.style.display = 'block';
+
+                            if (data.status === 'success') {
+                                resultDiv.className = 'success';
+                                resultDiv.textContent = data.message;
+                            } else {
+                                resultDiv.className = 'error';
+                                resultDiv.textContent = data.message;
+                            }
+                        })
+                        .catch(error => {
+                            const resultDiv = document.getElementById('result');
+                            resultDiv.style.display = 'block';
+                            resultDiv.className = 'error';
+                            resultDiv.textContent = '删除失败: 网络错误或服务器问题';
+                        });
+                    }
+                }
+            </script>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                        <th>密码</th>
+                        <th>角色</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.userid }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.password }}</td>
+                        <td>{% if user.role=="user" %}普通用户{% else %}管理员{% endif %}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('toedit', id=user.userid) }}" class="btn btn-edit">编辑</a>
+                            <a href="{{ url_for('delete_user', id=user.userid) }}" class="btn btn-delete" onclick="return confirm('确定要删除这个用户吗?')">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
