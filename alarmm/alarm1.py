@@ -8,7 +8,7 @@ check_lock = Lock()
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 CORS(app)
 
-
+printf("hello")
 socketio = SocketIO(app, cors_allowed_origins="*")
 # MySQL connection configuration
 db_config = {
